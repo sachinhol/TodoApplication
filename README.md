@@ -17,7 +17,7 @@ This is the backend API for the TodoMVC application, built using Java and Spring
 This project uses **SpringDoc OpenAPI** for automatic API documentation generation.
 
 - **Swagger UI**: View and test API endpoints through Swagger's user-friendly interface.  
-  **URL**: http://localhost:8081/docs
+  **URL**: http://localhost:8081/docs (Deployed on local machine)
 
 - **OpenAPI JSON**: Retrieve the raw OpenAPI documentation in JSON format.  
-  **URL**: http://localhost:8081/v3/api-docs
+  **URL**: http://localhost:8081/v3/api-docs  (Deployed on local machine)
