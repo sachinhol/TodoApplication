@@ -1,7 +1,8 @@
 package com.example.todo.service;
 
-import com.example.todo.entity.Todo;
+import com.example.todo.entity.TodoEntity;
 import com.example.todo.exceptions.TodoNotFoundException;
+import com.example.todo.model.TodoDto;
 import com.example.todo.repository.TodoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,27 +29,31 @@ class TodoServiceImplTest {
     @Mock
     TodoRepository todoRepository;
 
-    private Todo todo;
+    private TodoDto todoDto;
+
+    private TodoEntity todoEntity;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        todo = new Todo(1L,"Drive to airport","Pickup firends","Pending","High", LocalDate.now(), LocalDateTime.now(),LocalDateTime.now());
+        todoDto = new TodoDto(1L,"Drive to airport","Pickup firends","Pending","High", LocalDate.now(), LocalDateTime.now(),LocalDateTime.now());
+        todoEntity = new TodoEntity(1L,"Drive to airport","Pickup firends","Pending","High", LocalDate.now(), LocalDateTime.now(),LocalDateTime.now());
     }
 
     @Test
     void testCreateTodo() {
-        when(todoRepository.save(any(Todo.class))).thenReturn(todo);
+        when(todoRepository.save(any(TodoEntity.class))).thenReturn(todoEntity);
 
-        Todo newTodo = todoService.createTodo(todo);
+        TodoDto newTodo = todoService.createTodo(todoDto);
 
         assertNotNull(newTodo);
+        assertEquals(todoEntity.getId(), newTodo.getId());
         assertEquals("Drive to airport",newTodo.getTitle());
     }
 
     @Test
     void testGetAllTodo_TodoPresent() {
-        when(todoRepository.findAll()).thenReturn(Arrays.asList(todo));
+        when(todoRepository.findAll()).thenReturn(Arrays.asList(todoEntity));
 
         List todoList =todoService.getAllTodo();
 
@@ -72,9 +77,9 @@ class TodoServiceImplTest {
 
     @Test
     void testGetToDoById_TodoPresent() {
-        when(todoRepository.findById(anyLong())).thenReturn(Optional.of(todo));
+        when(todoRepository.findById(anyLong())).thenReturn(Optional.of(todoEntity));
 
-        Todo fetchedTodo =   todoService.getToDoById(anyLong());
+        TodoDto fetchedTodo =   todoService.getToDoById(anyLong());
 
         assertEquals("Drive to airport",fetchedTodo.getTitle());
     }
@@ -119,25 +124,30 @@ class TodoServiceImplTest {
 
     @Test
     void testUpdateTodoById_TodoPresent() {
-        Todo updatedTodo = new Todo(1L,"Book movie tickets", "Any movie", "Pending", "high", null,LocalDateTime.now(), LocalDateTime.now());
-        when(todoRepository.findById(1L)).thenReturn(Optional.of(todo));
-        when(todoRepository.save(any(Todo.class))).thenReturn(updatedTodo);
+        // Arrange
+        TodoEntity existingTodoEntity = new TodoEntity(1L, "Book movie tickets", "Any movie", "Pending", "high", null, LocalDateTime.now(), LocalDateTime.now());
+        TodoDto updatedTodoDto = new TodoDto(1L, "Book movie tickets", "Any movie", "Pending", "high", null, LocalDateTime.now(), LocalDateTime.now());
 
-        Todo result = todoService.updateTodoById(1L, updatedTodo);
+        when(todoRepository.findById(1L)).thenReturn(Optional.of(existingTodoEntity));
+        when(todoRepository.save(any(TodoEntity.class))).thenReturn(existingTodoEntity);
+
+        TodoDto result = todoService.updateTodoById(1L, updatedTodoDto);
 
         assertNotNull(result);
         assertEquals("high", result.getPriority());
-        verify(todoRepository, times(1)).save(any(Todo.class));
+        assertEquals(1L, result.getId());
+        assertEquals("Book movie tickets", result.getTitle());
+        verify(todoRepository, times(1)).findById(1L);
+        verify(todoRepository, times(1)).save(any(TodoEntity.class));
     }
 
     @Test
     void testUpdateTodoById_TodoNotPresent() {
-        Todo updatedTodo = new Todo(1L,"Book movie tickets", "Any movie", "Pending", "high", null,LocalDateTime.now(), LocalDateTime.now());
+        TodoDto updatedTodoDto = new TodoDto(1L,"Book movie tickets", "Any movie", "Pending", "high", null,LocalDateTime.now(), LocalDateTime.now());
         when(todoRepository.findById(1L)).thenReturn(Optional.empty());
-        when(todoRepository.save(any(Todo.class))).thenReturn(updatedTodo);
 
         Exception exception = assertThrows(TodoNotFoundException.class,()->{
-            todoService.updateTodoById(1L, updatedTodo);
+            todoService.updateTodoById(1L, updatedTodoDto);
         });
 
 
@@ -149,9 +159,9 @@ class TodoServiceImplTest {
 
     @Test
     void testGetTodoByPriority_TodoPresent() {
-        Todo todo1 = new Todo(1L,"Drive to airport","Pickup firends","Pending","High", LocalDate.now(), LocalDateTime.now(),LocalDateTime.now());
-        Todo todo2 = new Todo(2L,"Book movie tickets", "Any movie", "Pending", "High", null,LocalDateTime.now(), LocalDateTime.now());
-        Todo todo3 = new Todo(3L,"Any Task", "Any Description", "Completed", "Low", null,LocalDateTime.now(), LocalDateTime.now());
+        TodoEntity todo1 = new TodoEntity(1L,"Drive to airport","Pickup firends","Pending","High", LocalDate.now(), LocalDateTime.now(),LocalDateTime.now());
+        TodoEntity todo2 = new TodoEntity(2L,"Book movie tickets", "Any movie", "Pending", "High", null,LocalDateTime.now(), LocalDateTime.now());
+        TodoEntity todo3 = new TodoEntity(3L,"Any Task", "Any Description", "Completed", "Low", null,LocalDateTime.now(), LocalDateTime.now());
         List todoList = new ArrayList();
         todoList.add(todo1);
         todoList.add(todo2);
@@ -166,9 +176,9 @@ class TodoServiceImplTest {
 
     @Test
     void testGetTodoByPriority_TodoNotPresent() {
-        Todo todo1 = new Todo(1L,"Drive to airport","Pickup firends","Pending","High", LocalDate.now(), LocalDateTime.now(),LocalDateTime.now());
-        Todo todo2 = new Todo(2L,"Book movie tickets", "Any movie", "Pending", "High", null,LocalDateTime.now(), LocalDateTime.now());
-        Todo todo3 = new Todo(3L,"Any Task", "Any Description", "Completed", "Low", null,LocalDateTime.now(), LocalDateTime.now());
+        TodoEntity todo1 = new TodoEntity(1L,"Drive to airport","Pickup firends","Pending","High", LocalDate.now(), LocalDateTime.now(),LocalDateTime.now());
+        TodoEntity todo2 = new TodoEntity(2L,"Book movie tickets", "Any movie", "Pending", "High", null,LocalDateTime.now(), LocalDateTime.now());
+        TodoEntity todo3 = new TodoEntity(3L,"Any Task", "Any Description", "Completed", "Low", null,LocalDateTime.now(), LocalDateTime.now());
         List todoList = new ArrayList();
         todoList.add(todo1);
         todoList.add(todo2);

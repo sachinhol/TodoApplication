@@ -1,6 +1,7 @@
 package com.example.todo.controller;
 
-import com.example.todo.entity.Todo;
+import com.example.todo.entity.TodoEntity;
+import com.example.todo.model.TodoDto;
 import com.example.todo.service.TodoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,11 +31,13 @@ class TodoControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+
     }
 
     @Test
     void testCreateTodo_Valid() {
-        Todo todo = new Todo();
+        TodoDto todo = new TodoDto();
         todo.setId(1L);
         todo.setTitle("Drive to Airport");
         todo.setPriority("High");
@@ -43,9 +46,9 @@ class TodoControllerTest {
         todo.setCreatedAt(LocalDateTime.now());
         todo.setUpdatedAt(LocalDateTime.now());
 
-        when(todoService.createTodo(any(Todo.class))).thenReturn(todo);
+        when(todoService.createTodo(any(TodoDto.class))).thenReturn(todo);
 
-        ResponseEntity<Todo> response = todoController.createTodo(todo);
+        ResponseEntity<TodoDto> response = todoController.createTodo(todo);
         assertEquals("Drive to Airport", response.getBody().getTitle());
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         verify(todoService, times(1)).createTodo(todo);
@@ -53,8 +56,8 @@ class TodoControllerTest {
 
     @Test
     public void testGetAllTodos() {
-        List<Todo> todoList = new ArrayList<>();
-        Todo todo1 = new Todo();
+        List<TodoDto> todoList = new ArrayList<>();
+        TodoDto todo1 = new TodoDto();
         todo1.setId(1L);
         todo1.setTitle("Drive to Airport");
         todo1.setPriority("High");
@@ -63,7 +66,7 @@ class TodoControllerTest {
         todo1.setCreatedAt(LocalDateTime.now());
         todo1.setUpdatedAt(LocalDateTime.now());
 
-        Todo todo2 = new Todo();
+        TodoDto todo2 = new TodoDto();
         todo2.setId(2L);
         todo2.setTitle("Go to swimming");
         todo2.setPriority("Medium");
@@ -77,7 +80,7 @@ class TodoControllerTest {
 
         when(todoService.getAllTodo()).thenReturn(todoList);
 
-        ResponseEntity<List<Todo>> response = todoController.getAllTodos();
+        ResponseEntity<List<TodoDto>> response = todoController.getAllTodos();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(2, response.getBody().size());
@@ -86,7 +89,7 @@ class TodoControllerTest {
 
     @Test
     public void testGetTodoById() {
-        Todo todo = new Todo();
+        TodoDto todo = new TodoDto();
         todo.setId(1L);
         todo.setTitle("Drive to Airport");
         todo.setPriority("High");
@@ -97,7 +100,7 @@ class TodoControllerTest {
 
         when(todoService.getToDoById(1L)).thenReturn(todo);
 
-        ResponseEntity<Todo> response = todoController.getTodoByID(1L);
+        ResponseEntity<TodoDto> response = todoController.getTodoByID(1L);
 
         assertEquals(HttpStatus.FOUND, response.getStatusCode());
         assertEquals("Drive to Airport", response.getBody().getTitle());
@@ -117,7 +120,7 @@ class TodoControllerTest {
 
     @Test
     public void testUpdateTodoById() {
-        Todo todo = new Todo();
+        TodoDto todo = new TodoDto();
         todo.setId(1L);
         todo.setTitle("Updated Todo");
         todo.setPriority("High");
@@ -126,9 +129,9 @@ class TodoControllerTest {
         todo.setCreatedAt(LocalDateTime.now());
         todo.setUpdatedAt(LocalDateTime.now());
 
-        when(todoService.updateTodoById(any(Long.class), any(Todo.class))).thenReturn(todo);
+        when(todoService.updateTodoById(any(Long.class), any(TodoDto.class))).thenReturn(todo);
 
-        ResponseEntity<Todo> response = todoController.updateTodoById(1L, todo);
+        ResponseEntity<TodoDto> response = todoController.updateTodoById(1L, todo);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("Updated Todo", response.getBody().getTitle());
@@ -137,8 +140,8 @@ class TodoControllerTest {
 
     @Test
     public void testFindToDoByPriority() {
-        List<Todo> todoList = new ArrayList<>();
-        Todo todo = new Todo();
+        List<TodoDto> todoList = new ArrayList<>();
+        TodoDto todo = new TodoDto();
         todo.setId(1L);
         todo.setTitle("Drive to Airport");
         todo.setPriority("High");
@@ -150,7 +153,7 @@ class TodoControllerTest {
 
         when(todoService.getTodoByPriority("High")).thenReturn(todoList);
 
-        ResponseEntity<List<Todo>> response = todoController.findToDoByPriority("High");
+        ResponseEntity<List<TodoDto>> response = todoController.findToDoByPriority("High");
 
         assertEquals(HttpStatus.FOUND, response.getStatusCode());
         assertEquals(1, response.getBody().size());

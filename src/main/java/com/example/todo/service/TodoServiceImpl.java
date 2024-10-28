@@ -1,10 +1,12 @@
 package com.example.todo.service;
 
-import com.example.todo.entity.Todo;
+import com.example.todo.entity.TodoEntity;
 import com.example.todo.exceptions.TodoNotFoundException;
+import com.example.todo.model.TodoDto;
 import com.example.todo.repository.TodoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /*
  * Author: Sachin Hol
@@ -35,11 +38,28 @@ public class TodoServiceImpl implements TodoService{
      * @return - The created To-do object.
      */
     @Override
-    public Todo createTodo(Todo todo) {
+    public TodoDto createTodo(TodoDto todo) {
         logger.info("Creating new Todo: {}", todo);
-        Todo savedTodo = todoRepository.save(todo);
-        logger.info("Todo created with ID: {}", savedTodo.getId());
-        return savedTodo;
+
+        TodoEntity todoEntity =  TodoEntity.builder()
+                .title(todo.getTitle())
+                .description(todo.getDescription())
+                .status(todo.getStatus())
+                .priority(todo.getPriority())
+                .dueDate(todo.getDueDate())
+                .createdAt(todo.getCreatedAt())
+                .updatedAt(todo.getUpdatedAt())
+                .build();
+
+        TodoEntity savedTodoEntity = todoRepository.save(todoEntity);
+
+        TodoDto savedtodoDto = new TodoDto();
+        savedtodoDto.setId(savedTodoEntity.getId());
+        BeanUtils.copyProperties(savedTodoEntity,savedtodoDto);
+
+        logger.info("Todo created with ID: {}", savedtodoDto.getId());
+
+        return savedtodoDto;
     }
 
     /**
@@ -48,17 +68,23 @@ public class TodoServiceImpl implements TodoService{
      * @return - A list of To-do objects
      */
     @Override
-    public List<Todo> getAllTodo() {
+    public List<TodoDto> getAllTodo() {
         logger.info("Fetching all Todos");
-        List<Todo> todos = todoRepository.findAll();
+        List<TodoEntity> todos = todoRepository.findAll();
 
         if(todos.isEmpty()){
             logger.error("No Todos found");
             throw new TodoNotFoundException("No Todo items found");
         }
-
-        logger.info("Total Todos fetched: {}", todos.size());
-        return todos;
+        List<TodoDto> todoDtoList = todos.stream()
+                .map(todo -> {
+                    TodoDto todoDto = new TodoDto();
+                    BeanUtils.copyProperties(todo, todoDto);
+                    return todoDto;
+                })
+                .collect(Collectors.toList());
+        logger.info("Total Todos fetched: {}", todoDtoList.size());
+        return todoDtoList;
     }
 
     /**
@@ -68,13 +94,19 @@ public class TodoServiceImpl implements TodoService{
      * @return - Returns to-do object.
      */
     @Override
-    public Todo getToDoById(Long id) {
+    public TodoDto getToDoById(Long id) {
         logger.info("Fetching Todo with ID: {}", id);
-        return todoRepository.findById(id)
+        TodoEntity todoEntity =  todoRepository.findById(id)
                 .orElseThrow(() -> {
                     logger.error("Todo with ID: {} not found", id);
                     return new TodoNotFoundException("Todo task not found with ID: " + id);
                 });
+
+        TodoDto todoDto = new TodoDto();
+        BeanUtils.copyProperties(todoEntity, todoDto); // Copy properties from the entity to the DTO
+
+        logger.info("Todo fetched: {}", todoDto);
+        return todoDto; // Return the DTO
     }
 
     /**
@@ -102,12 +134,12 @@ public class TodoServiceImpl implements TodoService{
      * @return - update to-do object.
      */
     @Override
-    public Todo updateTodoById(Long todoId, Todo todoDetails) {
+    public TodoDto updateTodoById(Long todoId, TodoDto todoDetails) {
         logger.info("Updating Todo with ID: {}", todoId);
-        Optional<Todo> existingTodoOptional = todoRepository.findById(todoId);
+        Optional<TodoEntity> existingTodoOptional = todoRepository.findById(todoId);
 
         if (existingTodoOptional.isPresent()) {
-            Todo existingTodo = existingTodoOptional.get();
+            TodoEntity existingTodo = existingTodoOptional.get();
 
             // Updated fields only if the value is present
             existingTodo.setTitle(todoDetails.getTitle() != null ? todoDetails.getTitle() : existingTodo.getTitle());
@@ -118,9 +150,11 @@ public class TodoServiceImpl implements TodoService{
             existingTodo.setCreatedAt(existingTodo.getCreatedAt());
             existingTodo.setUpdatedAt(getCurrentDateAndTime());
 
-            Todo updatedTodo = todoRepository.save(existingTodo);
+            TodoEntity updatedTodo = todoRepository.save(existingTodo);
+            TodoDto updatedTodoDto = new TodoDto();
+            BeanUtils.copyProperties(updatedTodo,updatedTodoDto);
             logger.info("Todo with ID: {} updated successfully", todoId);
-            return updatedTodo;
+            return updatedTodoDto;
         } else {
             logger.error("Todo with ID: {} not found for update", todoId);
             throw new TodoNotFoundException("Todo task not found with ID: " + todoId);
@@ -134,15 +168,20 @@ public class TodoServiceImpl implements TodoService{
      * @return - get to-do object.
      */
     @Override
-    public List<Todo> getTodoByPriority(String toDoPriority) {
+    public List<TodoDto> getTodoByPriority(String toDoPriority) {
         logger.info("Fetching Todos by priority: {}", toDoPriority);
-        List<Todo> todoListByPriority = todoRepository.findByPriority(toDoPriority);
+        List<TodoEntity> todoListByPriority = todoRepository.findByPriority(toDoPriority);
         if(todoListByPriority.isEmpty()){
             logger.error("No Todos found with priority: {}", toDoPriority);
             throw new TodoNotFoundException("No Todos found with priority: " + toDoPriority);
         }
-        logger.info("Total Todos fetched with priority {}: {}", toDoPriority, todoListByPriority.size());
-        return todoListByPriority;
+        List<TodoDto> todoDtoPriorityList = todoListByPriority.stream().map(todoEntity -> {
+           TodoDto todoDto = new TodoDto();
+           BeanUtils.copyProperties(todoEntity,todoDto);
+           return todoDto;
+        }).collect(Collectors.toList());
+        logger.info("Total Todos fetched with priority {}: {}", toDoPriority, todoDtoPriorityList.size());
+        return todoDtoPriorityList;
     }
 
     /**

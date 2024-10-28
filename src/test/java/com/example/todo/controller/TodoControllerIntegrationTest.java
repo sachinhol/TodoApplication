@@ -4,7 +4,8 @@ package com.example.todo.controller;/*
  * Junit integration test for todocontroller
  */
 
-import com.example.todo.entity.Todo;
+import com.example.todo.entity.TodoEntity;
+import com.example.todo.model.TodoDto;
 import com.example.todo.service.TodoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,11 +37,11 @@ public class TodoControllerIntegrationTest {
     @Autowired
     MockMvc mockMvc;
 
-    private Todo todo;
+    private TodoDto todo;
 
     @BeforeEach
     public void setUp(){
-        todo = new Todo();
+        todo = new TodoDto();
         todo.setTitle("Drive to Airport");
         todo.setDescription("Pick up friends");
         todo.setPriority("medium");
@@ -52,7 +53,7 @@ public class TodoControllerIntegrationTest {
 
     @Test
     public void testCreateTodo_Success() throws Exception{
-        when(todoService.createTodo(any(Todo.class))).thenReturn(todo);
+        when(todoService.createTodo(any(TodoDto.class))).thenReturn(todo);
 
         String toDoJson = """
                     {
@@ -77,7 +78,7 @@ public class TodoControllerIntegrationTest {
     @Test
     public void createTodo_Fail() throws Exception{
         String toDoJson = """
-                    {
+                {
                     "id": 1,
                     "title": "",
                     "description": "Pick up friends",
@@ -86,19 +87,19 @@ public class TodoControllerIntegrationTest {
                     "dueDate": "2024-10-27",
                     "createdAt": "2024-10-21T09:15:00Z",
                     "updatedAt": "2024-10-21T09:15:00Z"
-                    }""";
+                }""";
 
         mockMvc.perform(post("/api/todos/create")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(toDoJson))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toDoJson))
+
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Please add Title"));
-
     }
 
     @Test
     public void testGetAllTodos_Success() throws Exception{
-        Todo todo2 = new Todo();
+        TodoEntity todo2 = new TodoEntity();
         todo2.setTitle("Book movie tickets");
         todo2.setDescription("Any movie");
         todo2.setPriority("High");
@@ -153,7 +154,7 @@ public class TodoControllerIntegrationTest {
 
     @Test
     public void testUpdateTodoById_Success() throws Exception {
-        Todo updatedTodo = new Todo();
+        TodoDto updatedTodo = new TodoDto();
         updatedTodo.setId(1L);
         updatedTodo.setTitle("Drive to Airport");
         updatedTodo.setDescription("Pick up friends and drop to home");
@@ -164,7 +165,7 @@ public class TodoControllerIntegrationTest {
         updatedTodo.setUpdatedAt(LocalDateTime.now());
 
 
-        when(todoService.updateTodoById(anyLong(),any(Todo.class))).thenReturn(updatedTodo);
+        when(todoService.updateTodoById(anyLong(),any(TodoDto.class))).thenReturn(updatedTodo);
 
         String updatedToDoJson = """
                     {
@@ -187,7 +188,7 @@ public class TodoControllerIntegrationTest {
 
     @Test
     public  void testFindToDoByPriority_Success() throws Exception {
-        Todo todo2 = new Todo();
+        TodoEntity todo2 = new TodoEntity();
         todo2.setTitle("Book movie tickets");
         todo2.setDescription("Any movie");
         todo2.setPriority("High");

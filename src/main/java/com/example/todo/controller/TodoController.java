@@ -1,6 +1,7 @@
 package com.example.todo.controller;
 
-import com.example.todo.entity.Todo;
+import com.example.todo.entity.TodoEntity;
+import com.example.todo.model.TodoDto;
 import com.example.todo.service.TodoService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -29,22 +30,22 @@ public class TodoController {
 
     //Create a new to-do task
     @PostMapping("/create")
-    public ResponseEntity<Todo> createTodo(@Valid @RequestBody Todo todo){
-        Todo createTodo = todoService.createTodo(todo);
+    public ResponseEntity<TodoDto> createTodo(@Valid @RequestBody TodoDto todo){
+        TodoDto createTodo = todoService.createTodo(todo);
         return new ResponseEntity<>(createTodo, HttpStatus.CREATED);
     }
 
     //Get all to-do tasks
     @GetMapping("/getall")
-    public ResponseEntity<List<Todo>> getAllTodos(){
-        List<Todo> todosList = todoService.getAllTodo();
+    public ResponseEntity<List<TodoDto>> getAllTodos(){
+        List<TodoDto> todosList = todoService.getAllTodo();
         return new ResponseEntity<>(todosList,HttpStatus.OK);
     }
 
     //Get a particular to-da task by id
     @GetMapping("/{id}")
-    public ResponseEntity<Todo> getTodoByID(@PathVariable("id") Long todoId){
-        Todo todoById  = todoService.getToDoById(todoId);
+    public ResponseEntity<TodoDto> getTodoByID(@PathVariable("id") Long todoId){
+        TodoDto todoById  = todoService.getToDoById(todoId);
         return new ResponseEntity<>(todoById, HttpStatus.FOUND);
     }
 
@@ -57,16 +58,16 @@ public class TodoController {
 
     //Update a particular to-do task
     @PutMapping("/{id}")
-    public ResponseEntity<Todo> updateTodoById(@PathVariable("id") Long todoId, @RequestBody Todo todo){
-         Todo updatedTodo= todoService.updateTodoById(todoId,todo);
+    public ResponseEntity<TodoDto> updateTodoById(@PathVariable("id") Long todoId, @RequestBody TodoDto todo){
+         TodoDto updatedTodo= todoService.updateTodoById(todoId,todo);
          return new ResponseEntity<>(updatedTodo,HttpStatus.OK);
     }
 
     //Find To do task by query param
     @GetMapping("/find")
-    public ResponseEntity<List <Todo>> findToDoByPriority(@RequestParam("priority") String toDoPriority){
+    public ResponseEntity<List <TodoDto>> findToDoByPriority(@RequestParam("priority") String toDoPriority){
         logger.info("To do list found to be by Priority : {} ",toDoPriority);
-        List<Todo> priorityTodoList = todoService.getTodoByPriority(toDoPriority);
+        List<TodoDto> priorityTodoList = todoService.getTodoByPriority(toDoPriority);
         return new ResponseEntity<>(priorityTodoList, HttpStatus.FOUND);
     }
 }

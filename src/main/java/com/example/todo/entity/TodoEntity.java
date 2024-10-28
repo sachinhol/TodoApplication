@@ -5,10 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,20 +21,19 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@Builder
 @Entity
-public class Todo {
+public class TodoEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @NotBlank(message = "Please add Title")
     private String title;
 
     private String description;
 
     private String status;
 
-    @NotBlank(message = "Please Set Priority")
     private String priority;
 
     private LocalDate dueDate;

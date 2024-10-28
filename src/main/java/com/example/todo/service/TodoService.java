@@ -1,6 +1,7 @@
 package com.example.todo.service;
 
-import com.example.todo.entity.Todo;
+import com.example.todo.entity.TodoEntity;
+import com.example.todo.model.TodoDto;
 
 import java.util.List;
 
@@ -13,15 +14,15 @@ import java.util.List;
 
 
 public interface TodoService {
-    Todo createTodo(Todo todo);
+    TodoDto createTodo(TodoDto todo);
 
-    List<Todo> getAllTodo();
+    List<TodoDto> getAllTodo();
 
-    Todo getToDoById(Long todoId);
+    TodoDto getToDoById(Long todoId);
 
     void deleteTodoById(Long todoId);
 
-    Todo updateTodoById(Long todoId, com.example.todo.entity.Todo todo);
+    TodoDto updateTodoById(Long todoId, TodoDto todo);
 
-    List<Todo> getTodoByPriority(String toDoPriority);
+    List<TodoDto> getTodoByPriority(String toDoPriority);
 }
