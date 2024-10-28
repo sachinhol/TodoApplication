@@ -1,0 +1,15 @@
+# Server Configuration
+server:
+  port: 8081
+
+# H2 Database Configuration
+spring:
+  datasource:
+    url: jdbc:h2:mem:todoapp  # In-memory database will be lost when app stops
+    driver-class-name: org.h2.Driver
+    username: admin
+    password: password
+    platform: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true
