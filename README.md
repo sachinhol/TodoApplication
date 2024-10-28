@@ -6,7 +6,7 @@ This is the backend API for the TodoMVC application, built using Java and Spring
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/todomvc-api.git
+   git clone https://github.com/sachinhol/TodoApplication/tree/main
    cd todomvc-api
 
 1. **Run Application**
